@@ -12,8 +12,7 @@ RUN  groupadd --gid 9999 docker \
 # Upgrade all packages
 # Install common tools
 RUN yum update -y \
- && yum -y install sudo wget \
- && yum -y install epel-release \
+ && yum -y install sudo wget epel-release \
  && yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm \
  && yum clean all
 

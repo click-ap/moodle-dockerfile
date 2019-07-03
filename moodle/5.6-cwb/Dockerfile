@@ -1,13 +1,22 @@
 FROM moodletw/httpd:5.6-centos7
 MAINTAINER Click-AP
 
-ENV Customer=lawbroker
+ENV Customer=cwb
+ENV TZ=Asia/Taipei
 
 USER root
 
 RUN yum update -y \
- && yum clean all \
- && usermod -aG apache docker 
+ && yum install -y php-opcache php-ldap \
+ && yum clean all
+
+RUN sed -i \
+ -e "s|;date.timezone =|date.timezone = 'Asia/Taipei'|g" \
+ -e 's/post_max_size = 8M/post_max_size = 1024M/g' \
+ -e 's/upload_max_filesize = 2M/upload_max_filesize = 1024M/g' \
+ -e 's/max_execution_time = 30/max_execution_time = 600/g' \
+ -e 's/max_input_time = 60/max_input_time = 600/g' \
+ -e 's/memory_limit = 128M/memory_limit = 1024M/g' /etc/php.ini
 
 VOLUME ["/var/moodledata"]
 
@@ -21,9 +30,8 @@ RUN chmod -v +x /usr/local/entrypoint \
  && mkdir -p /var/moodledata \
  && chown -R docker:apache /var/moodledata/
 
-#USER docker
+USER docker
 
 EXPOSE 80
 WORKDIR /var/www/html
 ENTRYPOINT ["/tini", "--", "/usr/local/entrypoint"]
-#CMD /usr/sbin/apachectl -D FOREGROUND
